@@ -167,6 +167,7 @@ def main():
 
     option = input("Enter the option number (1/2/3): ").strip()
 
+
     # Subject category selection
     default_category = "cs"
     subject_category = input(f"Enter the subject category for arXiv (default is '{default_category}'): ").strip() or default_category
