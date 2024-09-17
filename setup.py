@@ -11,7 +11,11 @@ setup(
     packages=find_packages(),
     install_requires=[
         "requests",
-        "tqdm"
+        "tqdm",
+        "torch",
+        "sentence_transformers",
+        "faiss-gpu",
+        "tinydb"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
