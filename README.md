@@ -34,7 +34,7 @@ You will be prompted with options to search by keyword, read from a config file,
    You can also use arxiv_loader directly in your Python scripts:
 
 ```python
-from arxiv_loader import ArxivScrapper
+from arxiv_loader.arxiv_loader import ArxivScrapper
 
 # Initialize the loader
 loader = ArxivScrapper()
@@ -99,7 +99,7 @@ URLs saved to config file: deep_learning_urls.txt
 7. Generating FAISS Embeddings
 
 ```python
-from arxiv_loader import generate_faiss_embeddings
+from arxiv_loader.arxiv_loader.loader import generate_faiss_embeddings
 
 db_path = "path_to_your_database"
 generate_faiss_embeddings(db_path)
@@ -108,7 +108,7 @@ generate_faiss_embeddings(db_path)
 8. Search with Embeddings
 
 ```python
-from arxiv_loader import search_by_embedding
+from arxiv_loader.arxiv_loader.loader import search_by_embedding
 
 db_path = "path_to_your_database"
 query = "deep learning"
