@@ -1,0 +1,85 @@
+import os
+import numpy as np
+import torch
+from sentence_transformers import SentenceTransformer
+import faiss
+import json
+from tinydb import TinyDB, Query
+from tqdm import tqdm
+
+class ArxivEmbedding:
+
+    def __init__(self, db_path, embedding_model='sentence-transformers/all-MiniLM-L6-v2'):
+        # Load the embedding model
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.embedding_model.to(torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
+
+        # Load the database
+        self.db_path = db_path
+        self.db = TinyDB(f'{db_path}/arxiv_paper_db.json')
+        self.table = self.db.table('cs_paper_info')
+
+        # Create FAISS indices for title and abstract embeddings
+        self.title_index = faiss.IndexFlatL2(384)  # Assuming embeddings are of dimension 384
+        self.abs_index = faiss.IndexFlatL2(384)
+
+        # Create mappings between ids and index values
+        self.id_to_index = {}
+        self.index_to_id = {}
+        self.current_index = 0
+
+    def generate_embeddings(self):
+        paper_list = self.table.all()
+
+        for paper in tqdm(paper_list, desc="Generating embeddings"):
+            paper_id = paper['id']
+            title = paper['title']
+            abstract = paper['abs']
+
+            # Generate embeddings for title and abstract
+            title_embedding = self.embedding_model.encode([title], convert_to_tensor=True).cpu().numpy()
+            abs_embedding = self.embedding_model.encode([abstract], convert_to_tensor=True).cpu().numpy()
+
+            # Add to FAISS index
+            self.title_index.add(title_embedding)
+            self.abs_index.add(abs_embedding)
+
+            # Map paper ID to FAISS index
+            self.id_to_index[paper_id] = self.current_index
+            self.index_to_id[self.current_index] = paper_id
+            self.current_index += 1
+
+    def save_faiss_index(self):
+        # Save the FAISS indexes
+        faiss.write_index(self.title_index, f'{self.db_path}/faiss_paper_title_embeddings.bin')
+        faiss.write_index(self.abs_index, f'{self.db_path}/faiss_paper_abs_embeddings.bin')
+
+        # Save the ID mappings
+        with open(f'{self.db_path}/arxivid_to_index.json', 'w') as f:
+            json.dump(self.id_to_index, f)
+
+    def load_faiss_index(self):
+        # Load the FAISS indexes
+        self.title_index = faiss.read_index(f'{self.db_path}/faiss_paper_title_embeddings.bin')
+        self.abs_index = faiss.read_index(f'{self.db_path}/faiss_paper_abs_embeddings.bin')
+
+        # Load the ID mappings
+        with open(f'{self.db_path}/arxivid_to_index.json', 'r') as f:
+            self.id_to_index = json.load(f)
+
+        # Create reverse mapping
+        self.index_to_id = {index: paper_id for paper_id, index in self.id_to_index.items()}
+
+    def search_papers_by_embedding(self, query, top_k=5, search_by="title"):
+        # Generate query embedding
+        query_embedding = self.embedding_model.encode([query], convert_to_tensor=True).cpu().numpy()
+
+        # Search in FAISS index
+        if search_by == "title":
+            distances, indices = self.title_index.search(query_embedding, top_k)
+        else:
+            distances, indices = self.abs_index.search(query_embedding, top_k)
+
+        # Retrieve paper IDs from indices
+        results = [self.index_to_id[idx] for idx in indices[0] if idx != -1]
+        return results
