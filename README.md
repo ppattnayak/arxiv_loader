@@ -34,7 +34,7 @@ You will be prompted with options to search by keyword, read from a config file,
    You can also use arxiv_loader directly in your Python scripts:
 
 ```python
-from arxiv_loader import ArxivLoader
+from arxiv_loader import ArxivScrapper
 
 # Initialize the loader
 loader = ArxivScrapper()

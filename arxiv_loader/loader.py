@@ -2,7 +2,7 @@ import time
 import requests
 import xml.etree.ElementTree as ET
 import json
-from arxiv_loader.embedding import ArxivEmbedding
+from arxiv_loader.arxiv_loader.embedding import ArxivEmbedding
 class ArxivScraper:
 
     def __init__(self):
@@ -157,25 +157,23 @@ class ArxivScraper:
                 print(f"Searching for papers with keyword: {keyword} in category '{subject_category}'")
                 self.search_papers_by_keyword(keyword, subject_category)
 
+def generate_faiss_embeddings(db_path):
+    # Initialize the embedding class
+    embedding_loader = ArxivEmbedding(db_path)
 
-    def generate_faiss_embeddings(db_path):
-        # Initialize the embedding class
-        embedding_loader = ArxivEmbedding(db_path)
+    # Generate and save FAISS indexes
+    embedding_loader.generate_embeddings()
+    embedding_loader.save_faiss_index()
 
-        # Generate and save FAISS indexes
-        embedding_loader.generate_embeddings()
-        embedding_loader.save_faiss_index()
+def search_by_embedding(db_path, query, top_k=5, search_by="title"):
+    # Initialize the embedding class
+    embedding_loader = ArxivEmbedding(db_path)
 
-    def search_by_embedding(db_path, query, top_k=5, search_by="title"):
-        # Initialize the embedding class
-        embedding_loader = ArxivEmbedding(db_path)
+    # Load FAISS indexes
+    embedding_loader.load_faiss_index()
 
-        # Load FAISS indexes
-        embedding_loader.load_faiss_index()
-
-        # Search for papers by query
-        return embedding_loader.search_papers_by_embedding(query, top_k=top_k, search_by=search_by)
-
+    # Search for papers by query
+    return embedding_loader.search_papers_by_embedding(query, top_k=top_k, search_by=search_by)
 
 
 def main():
@@ -216,10 +214,6 @@ def main():
             print("Invalid option. Please choose 1, 2, or 3.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-
-
-
-
 
 
 
