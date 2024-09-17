@@ -11,6 +11,7 @@
 ### Installing via pip
 
 ```shell
+#Not yet available in PyPi. Use Git Clone Instead
 pip install arxiv_loader
 ```
 Alternatively, to install directly from the source:
