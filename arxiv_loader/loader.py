@@ -96,6 +96,14 @@ class ArxivScraper:
         except IOError as e:
             print(f"Error saving URLs to config file '{config_filename}': {e}")
 
+        try:
+            with open("arxiv_urls.txt", 'w') as f:
+                for paper in papers:
+                    f.write(f"{paper['url']}\n")
+            print(f"Successfully saved URLs to arxiv_urls.txt")
+        except IOError as e:
+            print(f"Error saving URLs to config file 'arxiv_urls.txt': {e}")
+
     def read_urls_from_file(self, config_file):
         """Read arXiv paper URLs from a configuration file."""
         try:
