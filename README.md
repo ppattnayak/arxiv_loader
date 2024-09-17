@@ -99,7 +99,6 @@ URLs saved to config file: deep_learning_urls.txt
 7. Generating FAISS Embeddings
 
 ```python
-To generate FAISS embeddings from the papers in the database, use the following function in your script:
 from arxiv_loader import generate_faiss_embeddings
 
 db_path = "path_to_your_database"
