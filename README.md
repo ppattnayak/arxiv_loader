@@ -42,12 +42,12 @@ loader = ArxivScrapper()
 # Example: Search for papers using a keyword
 loader.search_papers_by_keyword("machine learning")
 
-# Example: Search for papers using multiple keywords
+# Example: Search for papers using multiple keywords. Uncomment to run next line
 keywords = ["deep learning", "neural networks"]
-loader.search_multiple_keywords(keywords, combine=True)
+# loader.search_multiple_keywords(keywords, combine=True)
 
-# Example: Process papers from a config file
-loader.process_papers_from_urls('arxiv_urls.txt')
+# Example: Process papers from a config file. Uncomment to run next line
+# loader.process_papers_from_urls('arxiv_urls.txt')
 ```
 3. Options in the Command-Line Interface
    You will be presented with the following options after launching the arxiv-loader command:
