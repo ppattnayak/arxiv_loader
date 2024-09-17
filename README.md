@@ -10,13 +10,13 @@
 ## Installation
 ### Installing via pip
 
-```
+```shell
 pip install arxiv_loader
 ```
 Alternatively, to install directly from the source:
 
 
-```
+```shell
 git clone https://github.com/yourusername/arxiv_loader
 cd arxiv_loader
 pip install .
@@ -25,7 +25,7 @@ pip install .
 1. Running from the Command Line
    The command-line tool arxiv-loader provides an interactive interface to scrape papers from arXiv.
 
-```
+```shell
 arxiv-loader
 ```
 You will be prompted with options to search by keyword, read from a config file, or fetch all papers.
@@ -33,11 +33,11 @@ You will be prompted with options to search by keyword, read from a config file,
 2. Usage in Python Script
    You can also use arxiv_loader directly in your Python scripts:
 
-```
+```python
 from arxiv_loader import ArxivLoader
 
 # Initialize the loader
-loader = ArxivLoader()
+loader = ArxivScrapper()
 
 # Example: Search for papers using a keyword
 loader.search_papers_by_keyword("machine learning")
@@ -64,13 +64,13 @@ loader.process_papers_from_urls('arxiv_urls.txt')
    By default, the search is limited to papers in the cs (Computer Science) category. However, you can specify a different subject category when prompted, or pass it to the loader in your scripts:
 
 
-```
+```python
 loader.search_papers_by_keyword("quantum computing", subject_category="physics")
 ```
 5. Saving Results
    All the fetched paper metadata is saved to a JSON file in the following format:
 
-```
+```python
 {
 "cs_paper_info": {
 "1": {
@@ -95,6 +95,30 @@ Example:
 ```Enter a keyword: deep learning
 URLs saved to config file: deep_learning_urls.txt
 ```
+
+7. Generating FAISS Embeddings
+
+```python
+To generate FAISS embeddings from the papers in the database, use the following function in your script:
+from arxiv_loader import generate_faiss_embeddings
+
+db_path = "path_to_your_database"
+generate_faiss_embeddings(db_path)
+```
+
+8. Search with Embeddings
+
+```python
+from arxiv_loader import search_by_embedding
+
+db_path = "path_to_your_database"
+query = "deep learning"
+top_k = 5
+
+results = search_by_embedding(db_path, query, top_k=top_k, search_by="title")
+
+```
+
 
 ## License
 This project is licensed under the MIT License.
