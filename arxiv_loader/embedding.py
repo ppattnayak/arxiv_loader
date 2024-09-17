@@ -16,7 +16,7 @@ class ArxivEmbedding:
 
         # Load the database
         self.db_path = db_path
-        self.db = TinyDB(f'{db_path}/arxiv_paper_db.json')
+        self.db = TinyDB(f'{db_path}/arxiv_papers.json')
         self.table = self.db.table('cs_paper_info')
 
         # Create FAISS indices for title and abstract embeddings
