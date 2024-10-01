@@ -1,3 +1,5 @@
+#Testing
+
 import os
 import numpy as np
 import torch
@@ -9,9 +11,9 @@ from tqdm import tqdm
 
 class ArxivEmbedding:
 
-    def __init__(self, db_path, embedding_model='sentence-transformers/all-MiniLM-L6-v2'):
+    def __init__(self, db_path, embedding_model='nomic-ai/nomic-embed-text-v1'):
         # Load the embedding model
-        self.embedding_model = SentenceTransformer(embedding_model)
+        self.embedding_model = SentenceTransformer(embedding_model, trust_remote_code=True)
         self.embedding_model.to(torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
 
         # Load the database
@@ -19,9 +21,9 @@ class ArxivEmbedding:
         self.db = TinyDB(f'{db_path}/arxiv_papers.json')
         self.table = self.db.table('cs_paper_info')
 
-        # Create FAISS indices for title and abstract embeddings
-        self.title_index = faiss.IndexFlatL2(384)  # Assuming embeddings are of dimension 384
-        self.abs_index = faiss.IndexFlatL2(384)
+        # Placeholder for FAISS index, will initialize in generate_embeddings
+        self.title_index = None
+        self.abs_index = None
 
         # Create mappings between ids and index values
         self.id_to_index = {}
@@ -40,9 +42,25 @@ class ArxivEmbedding:
             title_embedding = self.embedding_model.encode([title], convert_to_tensor=True).cpu().numpy()
             abs_embedding = self.embedding_model.encode([abstract], convert_to_tensor=True).cpu().numpy()
 
+            # Check dimensions of the embeddings
+            title_dim = title_embedding.shape[1]
+            abs_dim = abs_embedding.shape[1]
+
+            # Initialize FAISS indices if not already initialized
+            if self.title_index is None:
+                print(f"Initializing FAISS index for title with dimension {title_dim}")
+                self.title_index = faiss.IndexFlatL2(title_dim)  # Use correct dimension
+            if self.abs_index is None:
+                print(f"Initializing FAISS index for abstract with dimension {abs_dim}")
+                self.abs_index = faiss.IndexFlatL2(abs_dim)  # Use correct dimension
+
             # Add to FAISS index
-            self.title_index.add(title_embedding)
-            self.abs_index.add(abs_embedding)
+            try:
+                self.title_index.add(title_embedding)
+                self.abs_index.add(abs_embedding)
+            except AssertionError as e:
+                print(f"Error adding embeddings for paper ID {paper_id}: {e}")
+                continue
 
             # Map paper ID to FAISS index
             self.id_to_index[paper_id] = self.current_index
