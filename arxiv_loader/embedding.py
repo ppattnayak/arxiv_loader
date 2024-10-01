@@ -9,7 +9,7 @@ import json
 from tinydb import TinyDB, Query
 from tqdm import tqdm
 
-class ArxivEmbedding2:
+class ArxivEmbedding:
 
     def __init__(self, db_path, embedding_model='nomic-ai/nomic-embed-text-v1'):
         # Load the embedding model
